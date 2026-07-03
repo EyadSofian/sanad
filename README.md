@@ -34,7 +34,7 @@ npm run dev:worker           # cron worker
 npm run dev:web              # Vite on :5173 (proxies /api)
 ```
 
-Production: `npm run build` then `npm run start:web` + `npm run start:worker` as two services sharing one Postgres (Railway).
+Production: `npm run build` then `npm run start:web` + `npm run start:worker` as two services sharing one Postgres (Railway). The production start scripts run `prisma migrate deploy` first so a fresh Railway Postgres gets the required tables before auth/chat routes start.
 
 ## Safety & compliance (Section 0 of the spec — blocking for launch)
 

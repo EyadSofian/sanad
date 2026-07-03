@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "dev:worker": "node --watch src/workers/index.js",
+    "prestart": "prisma migrate deploy",
     "start": "node src/index.js",
+    "prestart:worker": "prisma migrate deploy",
     "start:worker": "node src/workers/index.js",
     "test": "vitest run",
     "postinstall": "prisma generate",
@@ -31,10 +33,10 @@
     "multer": "^2.0.1",
     "node-cron": "^3.0.3",
     "pino": "^9.6.0",
-    "pino-http": "^10.3.0"
+    "pino-http": "^10.3.0",
+    "prisma": "^6.2.1"
   },
   "devDependencies": {
-    "prisma": "^6.2.1",
     "vitest": "^3.0.0"
   }
 }

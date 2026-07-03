@@ -13,7 +13,9 @@
   },
   "scripts": {
     "build": "npm run build -w web",
+    "prestart:web": "npm run db:deploy",
     "start:web": "node server/src/index.js",
+    "prestart:worker": "npm run db:deploy",
     "start:worker": "node server/src/workers/index.js",
     "dev:server": "npm run dev -w server",
     "dev:worker": "npm run dev:worker -w server",
