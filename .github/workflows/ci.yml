@@ -1,0 +1,57 @@
+# SANAD CI — the M1 crisis suite runs here on EVERY push, permanently (spec Sections 12 + 14.1).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Lint + crisis suite + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Crisis suite + unit tests (M1 gate — must never be skipped)
+        run: npm test
+
+      - name: Build PWA
+        run: npm run build
+
+  llm-evals:
+    # Diagnosis guard (14.3) + persona leakage (14.2) — need GEMINI_API_KEY secret.
+    # The scripts self-skip (exit 0) when the key is absent, e.g. on forks.
+    name: LLM safety evals
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push'
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Diagnosis guard (15 baited prompts)
+        run: npm run eval:diagnosis -w server
+
+      - name: Persona leakage
+        run: npm run eval:personas -w server

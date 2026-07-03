@@ -1,0 +1,27 @@
+{
+  "_comment": "COMPLIANCE (Section 0.6): every number below MUST be verified with current local sources before any public launch. Override the whole object via CRISIS_RESOURCES_JSON env var. verified:false items show a review warning in server logs.",
+  "title_ar": "في مساعدة متاحة دلوقتي",
+  "title_en": "Help is available right now",
+  "advice_ar": "كلم حد قريب منك دلوقتي — صاحب تثق فيه، حد من أهلك، أو مختص. متفضلش لوحدك.",
+  "advice_en": "Talk to someone close to you right now — a trusted friend, a family member, or a professional. Please don't stay alone with this.",
+  "emergency_ar": "لو في خطر على حياتك دلوقتي، اتصل بالطوارئ فورًا.",
+  "emergency_en": "If your life is in immediate danger, call emergency services now.",
+  "resources": [
+    {
+      "name_ar": "الخط الساخن للصحة النفسية — مصر",
+      "name_en": "Mental Health Hotline — Egypt",
+      "phone": "08008880700",
+      "verified": false,
+      "note_ar": "يُتحقق من الرقم قبل الإطلاق",
+      "note_en": "Verify this number before launch"
+    },
+    {
+      "name_ar": "الإسعاف المصري",
+      "name_en": "Egyptian Ambulance",
+      "phone": "123",
+      "verified": false,
+      "note_ar": "يُتحقق من الرقم قبل الإطلاق",
+      "note_en": "Verify this number before launch"
+    }
+  ]
+}

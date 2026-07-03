@@ -1,0 +1,40 @@
+{
+  "name": "@sanad/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "dev:worker": "node --watch src/workers/index.js",
+    "start": "node src/index.js",
+    "start:worker": "node src/workers/index.js",
+    "test": "vitest run",
+    "postinstall": "prisma generate",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "node prisma/seedKb.js",
+    "eval:diagnosis": "node scripts/evals/diagnosis-guard.mjs",
+    "eval:personas": "node scripts/evals/persona-leakage.mjs",
+    "backfill:embeddings": "node scripts/backfill-embeddings.mjs"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "@prisma/client": "^6.2.1",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.1",
+    "node-cron": "^3.0.3",
+    "pino": "^9.6.0",
+    "pino-http": "^10.3.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.2.1",
+    "vitest": "^3.0.0"
+  }
+}

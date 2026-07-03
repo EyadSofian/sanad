@@ -1,0 +1,32 @@
+{
+  "name": "sanad",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "SANAD (سند) — bilingual AI wellness companion (Egyptian Arabic / English). Psychoeducation, safe venting, evidence-based coping. NOT a therapist.",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run build -w web",
+    "start:web": "node server/src/index.js",
+    "start:worker": "node server/src/workers/index.js",
+    "dev:server": "npm run dev -w server",
+    "dev:worker": "npm run dev:worker -w server",
+    "dev:web": "npm run dev -w web",
+    "test": "npm run test -w server",
+    "lint": "eslint .",
+    "db:deploy": "npm run db:deploy -w server",
+    "db:seed": "npm run db:seed -w server",
+    "icons": "node scripts/generate-icons.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0"
+  }
+}
