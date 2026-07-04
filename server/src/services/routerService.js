@@ -1,4 +1,5 @@
 import { generateText, MODELS } from '../lib/gemini.js';
+import { generateUtilityText } from '../lib/llm.js';
 import { ROUTER_PROMPT, ROUTER_AUDIO_ADDENDUM } from '../prompts/prompts.js';
 import { parseRoute, defaultRoute, guessLang } from './personaPolicy.js';
 import { logger } from '../lib/logger.js';
@@ -19,15 +20,24 @@ export async function classifyMessage({ text, audio }) {
     : [{ text: String(text || '') }];
 
   try {
-    const raw = await generateText({
-      model: MODELS.router,
-      system: isAudio ? ROUTER_PROMPT + ROUTER_AUDIO_ADDENDUM : ROUTER_PROMPT,
-      contents: [{ role: 'user', parts }],
-      temperature: 0,
-      json: true,
-      maxOutputTokens: isAudio ? 1024 : 256,
-      label: 'router',
-    });
+    const raw = isAudio
+      ? await generateText({
+          model: MODELS.router,
+          system: ROUTER_PROMPT + ROUTER_AUDIO_ADDENDUM,
+          contents: [{ role: 'user', parts }],
+          temperature: 0,
+          json: true,
+          maxOutputTokens: 1024,
+          label: 'router:audio',
+        })
+      : await generateUtilityText({
+          system: ROUTER_PROMPT,
+          contents: [{ role: 'user', parts }],
+          temperature: 0,
+          json: true,
+          maxOutputTokens: 256,
+          label: 'router:text',
+        });
     return parseRoute(raw, { fallbackLang: text ? guessLang(text) : 'ar' });
   } catch (err) {
     logger.error({ err: err.message }, 'router failed — defaulting to JARVIS (pre-check still applies)');

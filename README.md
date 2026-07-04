@@ -10,10 +10,10 @@
 
 ```
 POST /api/chat ──► [1] regex crisis pre-check (sync, zero-LLM, AR+EN)
-                   [2] router: gemini-2.5-flash-lite → {persona, emotion, intensity, crisis, kb_query, lang}
+                   [2] text router: selected LLM → {persona, emotion, intensity, crisis, kb_query, lang}
                    crisis? ──► fixed-skeleton crisis protocol (resources card, TTS off, personas locked)
                    [3] context: L1 last-12 msgs · L2 memory facts (pgvector) · L3 rolling profile · KB top-2
-                   [4] gemini-2.5-flash, SSE streaming, persona prompt (JARVIS/FRIDAY/TARS/CASE)
+                   [4] selected LLM, SSE streaming, persona prompt (JARVIS/FRIDAY/TARS/CASE)
                    [5] persist  [6] worker (session end): fact extraction → embed → dedupe upsert
 ```
 
@@ -26,7 +26,7 @@ POST /api/chat ──► [1] regex crisis pre-check (sync, zero-LLM, AR+EN)
 
 ```bash
 npm ci                       # installs workspaces + prisma generate
-cp .env.example .env         # fill GEMINI_API_KEY, DATABASE_URL, JWT_SECRET…
+cp .env.example .env         # fill DATABASE_URL, JWT_SECRET, and your chosen LLM provider key
 npm run db:deploy            # prisma migrate deploy (needs pgvector extension)
 npm run db:seed              # 10 bilingual psychoeducation KB entries
 npm run dev:server           # API on :8080
@@ -78,14 +78,14 @@ See [.env.example](.env.example). `CRISIS_RESOURCES_JSON` overrides the default 
 
 ## LLM engines (multi-provider)
 
-The persona replies (and the weekly digest) run on a switchable engine via `LLM_PROVIDER`:
+Text chat, the text router, summaries, TTS compression, and weekly digest run on a switchable engine via `LLM_PROVIDER`:
 
 | Provider | Env | Default model |
 |---|---|---|
 | `gemini` (default) | `GEMINI_API_KEY` | `gemini-2.5-flash` |
-| `openai` | `OPENAI_API_KEY` + optional `OPENAI_MODEL` / `OPENAI_BASE_URL` | `gpt-5-mini` |
+| `openai` | `OPENAI_API_KEY` + optional `OPENAI_MODEL` / `OPENAI_BASE_URL` | `gpt-5.4-mini` |
 | `anthropic` | `ANTHROPIC_API_KEY` + optional `ANTHROPIC_MODEL` | `claude-opus-4-8` |
 
-Gemini stays **always required**: the router/classifier, crisis path, embeddings (memory + KB) and voice-note transcription are pinned to it regardless of the main engine (`server/src/lib/llm.js`). The active engine shows up in Settings and in `GET /api/settings → engine`.
+Voice-note transcription still needs `GEMINI_API_KEY`. Embeddings for memory/KB are switchable via `EMBEDDING_PROVIDER=gemini|openai`; OpenAI embeddings use `text-embedding-3-small` at 768 dimensions to match the current `pgvector` schema. The active engine shows up in Settings and in `GET /api/settings -> engine`.
 
 For the internal-model / fine-tuning plan (router distillation, LoRA on the Sanad voice, why no LangChain for now), see [docs/ml-roadmap.md](docs/ml-roadmap.md).

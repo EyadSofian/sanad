@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { prisma } from '../lib/prisma.js';
 import { env } from '../config/env.js';
-import { generateText, MODELS } from '../lib/gemini.js';
+import { generateUtilityText } from '../lib/llm.js';
 import { TTS_COMPRESS_PROMPT } from '../prompts/prompts.js';
 import { shouldCompressForSpeech, truncateAtSentence, stripMarkdown } from '../lib/text.js';
 import { logger } from '../lib/logger.js';
@@ -26,8 +26,7 @@ export function budgetDecision({ used, budget, textLength }) {
 
 async function compressForSpeech(text) {
   try {
-    const out = await generateText({
-      model: MODELS.router,
+    const out = await generateUtilityText({
       system: TTS_COMPRESS_PROMPT,
       contents: [{ role: 'user', parts: [{ text }] }],
       temperature: 0.3,

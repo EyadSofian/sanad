@@ -4,12 +4,12 @@
  * Usage: npm run backfill:embeddings -w server
  */
 import { prisma } from '../src/lib/prisma.js';
-import { embedText, isGeminiConfigured } from '../src/lib/gemini.js';
+import { embedText, isEmbeddingConfigured } from '../src/lib/embeddings.js';
 import { vectorLiteral } from '../src/lib/vector.js';
 
 async function main() {
-  if (!isGeminiConfigured()) {
-    console.error('GEMINI_API_KEY is required for backfill.');
+  if (!isEmbeddingConfigured()) {
+    console.error('An embedding provider is required for backfill.');
     process.exit(1);
   }
 

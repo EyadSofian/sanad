@@ -7,7 +7,7 @@
  * can never pile sessions up; a missed extraction is an acceptable memory gap.
  */
 import { prisma } from '../lib/prisma.js';
-import { generateText, MODELS, isGeminiConfigured } from '../lib/gemini.js';
+import { generateUtilityText, isUtilityLlmConfigured } from '../lib/llm.js';
 import { FACT_EXTRACTION_PROMPT, SESSION_SUMMARY_PROMPT } from '../prompts/prompts.js';
 import { extractJson } from '../lib/text.js';
 import { upsertFact } from '../services/memoryService.js';
@@ -28,8 +28,7 @@ async function extractFacts(userId, messages) {
   const userTurns = messages.filter((m) => m.role === 'user');
   if (userTurns.length < 2) return 0; // nothing durable comes out of a one-liner
 
-  const raw = await generateText({
-    model: MODELS.router,
+  const raw = await generateUtilityText({
     system: FACT_EXTRACTION_PROMPT,
     contents: [{ role: 'user', parts: [{ text: renderTranscript(messages) }] }],
     temperature: 0,
@@ -53,8 +52,7 @@ async function extractFacts(userId, messages) {
 }
 
 async function summarize(messages) {
-  const summary = await generateText({
-    model: MODELS.router,
+  const summary = await generateUtilityText({
     system: SESSION_SUMMARY_PROMPT,
     contents: [{ role: 'user', parts: [{ text: renderTranscript(messages) }] }],
     temperature: 0.2,
@@ -88,7 +86,7 @@ export async function closeIdleSessions({ idleMinutes = IDLE_MINUTES, batch = 50
       await prisma.session.update({ where: { id: session.id }, data: { endedAt: new Date() } });
       closed += 1;
 
-      if (!isGeminiConfigured()) continue;
+      if (!isUtilityLlmConfigured()) continue;
       const messages = await prisma.message.findMany({
         where: { sessionId: session.id },
         orderBy: { createdAt: 'asc' },

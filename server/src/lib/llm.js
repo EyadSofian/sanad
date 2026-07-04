@@ -15,11 +15,11 @@ import { logger } from './logger.js';
 
 const DEFAULT_MODELS = {
   gemini: MODELS.main,
-  openai: 'gpt-5-mini',
+  openai: 'gpt-5.4-mini',
   anthropic: 'claude-opus-4-8',
 };
 
-function activeProvider() {
+export function activeProvider() {
   const p = env.LLM_PROVIDER;
   if (p === 'openai' && env.OPENAI_API_KEY) return 'openai';
   if (p === 'anthropic' && env.ANTHROPIC_API_KEY) return 'anthropic';
@@ -40,11 +40,18 @@ export function getEngineInfo() {
   return { provider, model };
 }
 
+export function isUtilityLlmConfigured() {
+  const provider = activeProvider();
+  if (provider === 'openai') return Boolean(env.OPENAI_API_KEY);
+  if (provider === 'anthropic') return Boolean(env.ANTHROPIC_API_KEY);
+  return Boolean(env.GEMINI_API_KEY);
+}
+
 // ---- lazy SDK clients (only loaded when that provider is active) ----
 let openaiClient = null;
 let anthropicClient = null;
 
-async function getOpenAI() {
+export async function getOpenAIClient() {
   if (!openaiClient) {
     const { default: OpenAI } = await import('openai');
     openaiClient = new OpenAI({
@@ -87,45 +94,70 @@ function toAnthropicMessages(contents) {
   return msgs;
 }
 
+async function generateOpenAIText({ system, contents, json = false, maxOutputTokens = 2048, label = 'openai' }) {
+  const client = await getOpenAIClient();
+  const { model } = getEngineInfo();
+  const completion = await withRetry(
+    () =>
+      client.chat.completions.create({
+        model,
+        messages: toOpenAIMessages(system, contents),
+        max_completion_tokens: maxOutputTokens,
+        ...(json ? { response_format: { type: 'json_object' } } : {}),
+      }),
+    { retries: 1, label: `${label}:openai` }
+  );
+  return completion.choices?.[0]?.message?.content ?? '';
+}
+
+async function generateAnthropicText({ system, contents, json = false, maxOutputTokens = 2048, label = 'anthropic' }) {
+  const client = await getAnthropic();
+  const { model } = getEngineInfo();
+  const response = await withRetry(
+    () =>
+      client.messages.create({
+        model,
+        max_tokens: maxOutputTokens,
+        ...(system ? { system: json ? `${system}\n\nReturn only valid JSON.` : system } : {}),
+        messages: toAnthropicMessages(contents),
+      }),
+    { retries: 1, label: `${label}:anthropic` }
+  );
+  if (response.stop_reason === 'refusal') throw new Error('anthropic refused the request');
+  return response.content
+    .filter((b) => b.type === 'text')
+    .map((b) => b.text)
+    .join('');
+}
+
+export async function generateUtilityText({
+  system,
+  contents,
+  temperature = 0.3,
+  json = false,
+  maxOutputTokens = 1024,
+  label = 'utility',
+}) {
+  const provider = activeProvider();
+  if (provider === 'openai') return generateOpenAIText({ system, contents, json, maxOutputTokens, label });
+  if (provider === 'anthropic') return generateAnthropicText({ system, contents, json, maxOutputTokens, label });
+  return geminiGenerateText({ model: MODELS.router, system, contents, temperature, json, maxOutputTokens, label });
+}
+
 /**
  * Non-streaming main-model generation.
  * `temperature` is applied on Gemini only — the newest OpenAI/Anthropic
  * models reject non-default sampling params.
  */
 export async function generateMainText({ system, contents, temperature = 0.7, maxOutputTokens = 2048, label = 'main' }) {
-  const { provider, model } = getEngineInfo();
+  const { provider } = getEngineInfo();
 
   if (provider === 'openai') {
-    const client = await getOpenAI();
-    const completion = await withRetry(
-      () =>
-        client.chat.completions.create({
-          model,
-          messages: toOpenAIMessages(system, contents),
-          max_completion_tokens: maxOutputTokens,
-        }),
-      { retries: 1, label: `${label}:openai` }
-    );
-    return completion.choices?.[0]?.message?.content ?? '';
+    return generateOpenAIText({ system, contents, maxOutputTokens, label });
   }
 
   if (provider === 'anthropic') {
-    const client = await getAnthropic();
-    const response = await withRetry(
-      () =>
-        client.messages.create({
-          model,
-          max_tokens: maxOutputTokens,
-          ...(system ? { system } : {}),
-          messages: toAnthropicMessages(contents),
-        }),
-      { retries: 1, label: `${label}:anthropic` }
-    );
-    if (response.stop_reason === 'refusal') throw new Error('anthropic refused the request');
-    return response.content
-      .filter((b) => b.type === 'text')
-      .map((b) => b.text)
-      .join('');
+    return generateAnthropicText({ system, contents, maxOutputTokens, label });
   }
 
   return geminiGenerateText({ model: MODELS.main, system, contents, temperature, maxOutputTokens, label });
@@ -139,7 +171,7 @@ export async function generateMainStream({ system, contents, temperature = 0.7, 
   const { provider, model } = getEngineInfo();
 
   if (provider === 'openai') {
-    const client = await getOpenAI();
+    const client = await getOpenAIClient();
     const stream = await client.chat.completions.create({
       model,
       messages: toOpenAIMessages(system, contents),

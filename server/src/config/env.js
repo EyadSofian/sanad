@@ -25,14 +25,17 @@ export const env = {
   DATABASE_URL: process.env.DATABASE_URL || '',
   JWT_SECRET: process.env.JWT_SECRET || 'dev-only-secret-change-me',
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
-  // Main-generation engine is switchable (gemini | openai | anthropic).
-  // Router, embeddings and voice transcription always stay on Gemini.
+  // Text-generation engine is switchable (gemini | openai | anthropic).
+  // Voice transcription still needs Gemini in the current implementation.
   LLM_PROVIDER: (process.env.LLM_PROVIDER || 'gemini').toLowerCase(),
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
   OPENAI_MODEL: process.env.OPENAI_MODEL || '',
   OPENAI_BASE_URL: process.env.OPENAI_BASE_URL || '',
+  OPENAI_EMBEDDING_MODEL: process.env.OPENAI_EMBEDDING_MODEL || '',
   ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '',
   ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL || '',
+  EMBEDDING_PROVIDER: (process.env.EMBEDDING_PROVIDER || '').toLowerCase(),
+  EMBEDDING_DIMENSIONS: num(process.env.EMBEDDING_DIMENSIONS, 768),
   ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY || '',
   ELEVEN_VOICE_ID: process.env.ELEVEN_VOICE_ID || '',
   TTS_CREDIT_BUDGET: num(process.env.TTS_CREDIT_BUDGET, 10000),
@@ -53,7 +56,9 @@ export function productionSanityCheck(logger) {
   if (!env.isProd) return;
   const problems = [];
   if (env.JWT_SECRET === 'dev-only-secret-change-me') problems.push('JWT_SECRET is the dev default');
-  if (!env.GEMINI_API_KEY) problems.push('GEMINI_API_KEY is missing');
+  if (!env.GEMINI_API_KEY && env.LLM_PROVIDER === 'gemini') problems.push('GEMINI_API_KEY is missing');
+  if (env.LLM_PROVIDER === 'openai' && !env.OPENAI_API_KEY) problems.push('OPENAI_API_KEY is missing while LLM_PROVIDER=openai');
+  if (env.LLM_PROVIDER === 'anthropic' && !env.ANTHROPIC_API_KEY) problems.push('ANTHROPIC_API_KEY is missing while LLM_PROVIDER=anthropic');
   if (!env.METRICS_HMAC_SECRET) problems.push('METRICS_HMAC_SECRET is missing (POST /api/metrics disabled)');
   for (const p of problems) logger.warn({ problem: p }, 'production config warning');
 }

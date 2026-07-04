@@ -1,5 +1,5 @@
 import { prisma } from '../lib/prisma.js';
-import { embedText, isGeminiConfigured } from '../lib/gemini.js';
+import { embedText, isEmbeddingConfigured } from '../lib/embeddings.js';
 import { vectorLiteral } from '../lib/vector.js';
 import { logger } from '../lib/logger.js';
 
@@ -11,7 +11,7 @@ export const RECENCY_HALF_LIFE_DAYS = 30;
  * Returns [] on any failure — memory must never break a chat turn.
  */
 export async function searchFacts(userId, queryText, { limit = 8 } = {}) {
-  if (!isGeminiConfigured()) return [];
+  if (!isEmbeddingConfigured()) return [];
   try {
     const emb = await embedText(queryText.slice(0, 2000), { label: 'embed:memquery' });
     const vec = vectorLiteral(emb);

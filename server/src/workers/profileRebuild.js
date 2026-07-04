@@ -3,7 +3,7 @@
  * stored on users.profile and injected into every chat context.
  */
 import { prisma } from '../lib/prisma.js';
-import { generateText, isGeminiConfigured } from '../lib/gemini.js';
+import { generateUtilityText, isUtilityLlmConfigured } from '../lib/llm.js';
 import { PROFILE_PROMPT } from '../prompts/prompts.js';
 import { topFactsForProfile } from '../services/memoryService.js';
 import { logger } from '../lib/logger.js';
@@ -12,7 +12,7 @@ const MIN_FACTS = 3; // below this a "profile" is just noise
 const PROFILE_CHAR_CAP = 2500;
 
 export async function rebuildProfiles() {
-  if (!isGeminiConfigured()) {
+  if (!isUtilityLlmConfigured()) {
     logger.warn('GEMINI_API_KEY missing — skipping profile rebuild');
     return { rebuilt: 0 };
   }
@@ -28,7 +28,7 @@ export async function rebuildProfiles() {
     try {
       const facts = await topFactsForProfile(userId, 40);
       const factList = facts.map((f) => `- [${f.category}] ${f.fact}`).join('\n');
-      const profile = await generateText({
+      const profile = await generateUtilityText({
         system: PROFILE_PROMPT,
         contents: [{ role: 'user', parts: [{ text: `MEMORY FACTS:\n${factList}` }] }],
         temperature: 0.3,

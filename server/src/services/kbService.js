@@ -1,5 +1,5 @@
 import { prisma } from '../lib/prisma.js';
-import { embedText, isGeminiConfigured } from '../lib/gemini.js';
+import { embedText, isEmbeddingConfigured } from '../lib/embeddings.js';
 import { vectorLiteral } from '../lib/vector.js';
 import { logger } from '../lib/logger.js';
 
@@ -11,7 +11,7 @@ import { logger } from '../lib/logger.js';
 export async function searchKb(kbQuery, { limit = 2 } = {}) {
   if (!kbQuery) return [];
   try {
-    if (isGeminiConfigured()) {
+    if (isEmbeddingConfigured()) {
       const emb = await embedText(kbQuery, { label: 'embed:kbquery' });
       const vec = vectorLiteral(emb);
       const rows = await prisma.$queryRawUnsafe(

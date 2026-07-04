@@ -5,7 +5,7 @@
  * without embeddings (keyword fallback still works) — run backfill-embeddings later.
  */
 import { prisma } from '../src/lib/prisma.js';
-import { embedText, isGeminiConfigured } from '../src/lib/gemini.js';
+import { embedText, isEmbeddingConfigured } from '../src/lib/embeddings.js';
 import { vectorLiteral } from '../src/lib/vector.js';
 import { KB_SEED } from './kbSeedData.js';
 
@@ -29,7 +29,7 @@ async function main() {
       update: data,
     });
 
-    if (isGeminiConfigured()) {
+    if (isEmbeddingConfigured()) {
       const vec = vectorLiteral(await embedText(`${entry.name_en}. ${entry.body_en}`, { label: 'embed:kbseed' }));
       await prisma.$executeRawUnsafe(`UPDATE kb_entries SET embedding = $1::vector WHERE slug = $2`, vec, entry.slug);
       embedded += 1;
@@ -38,8 +38,8 @@ async function main() {
   }
 
   console.log(`\nSeeded ${KB_SEED.length} KB entries (${embedded} embedded).`);
-  if (!isGeminiConfigured()) {
-    console.log('GEMINI_API_KEY not set — run `npm run backfill:embeddings -w server` later to enable vector retrieval.');
+  if (!isEmbeddingConfigured()) {
+    console.log('No embedding provider configured — run `npm run backfill:embeddings -w server` later to enable vector retrieval.');
   }
 }
 
