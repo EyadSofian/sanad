@@ -25,6 +25,14 @@ export const env = {
   DATABASE_URL: process.env.DATABASE_URL || '',
   JWT_SECRET: process.env.JWT_SECRET || 'dev-only-secret-change-me',
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+  // Main-generation engine is switchable (gemini | openai | anthropic).
+  // Router, embeddings and voice transcription always stay on Gemini.
+  LLM_PROVIDER: (process.env.LLM_PROVIDER || 'gemini').toLowerCase(),
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
+  OPENAI_MODEL: process.env.OPENAI_MODEL || '',
+  OPENAI_BASE_URL: process.env.OPENAI_BASE_URL || '',
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '',
+  ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL || '',
   ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY || '',
   ELEVEN_VOICE_ID: process.env.ELEVEN_VOICE_ID || '',
   TTS_CREDIT_BUDGET: num(process.env.TTS_CREDIT_BUDGET, 10000),

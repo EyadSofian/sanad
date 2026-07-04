@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { getUsage } from '../services/ttsService.js';
+import { getEngineInfo } from '../lib/llm.js';
 
 export const settingsRouter = Router();
 settingsRouter.use(requireAuth);
@@ -14,6 +15,7 @@ function settingsView(u, ttsUsage) {
     tarsHumor: u.tarsHumor,
     ttsEnabled: u.ttsEnabled,
     ttsUsage,
+    engine: getEngineInfo(),
   };
 }
 

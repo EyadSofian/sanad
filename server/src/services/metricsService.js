@@ -1,5 +1,5 @@
 import { prisma } from '../lib/prisma.js';
-import { generateText } from '../lib/gemini.js';
+import { generateMainText } from '../lib/llm.js';
 import { CORE_PROMPT, personaPrompt, DIGEST_PROMPT } from '../prompts/prompts.js';
 import { logger } from '../lib/logger.js';
 
@@ -55,7 +55,7 @@ export async function buildWeeklyDigest(user, now = new Date()) {
 
   let content;
   try {
-    content = await generateText({
+    content = await generateMainText({
       system: [CORE_PROMPT, personaPrompt('TARS', user), DIGEST_PROMPT].join('\n\n---\n\n'),
       contents: [
         {

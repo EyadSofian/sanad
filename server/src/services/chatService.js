@@ -1,5 +1,5 @@
 import { prisma } from '../lib/prisma.js';
-import { generateStream } from '../lib/gemini.js';
+import { generateMainStream } from '../lib/llm.js';
 import { crisisPrecheck } from '../safety/precheck.js';
 import { classifyMessage } from './routerService.js';
 import { resolvePersona, parseTarsCommand, guessLang } from './personaPolicy.js';
@@ -152,7 +152,7 @@ export async function handleChat({ req, res, user }) {
 
     let full = '';
     try {
-      const stream = await generateStream({
+      const stream = await generateMainStream({
         system,
         contents: allContents,
         temperature: persona === 'FRIDAY' ? 0.4 : 0.7,

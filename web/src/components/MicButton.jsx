@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { t } from '../lib/i18n.js';
+import { IconMic } from './Icons.jsx';
 
 /**
  * Hold-to-talk mic (spec Sections 9 + 11): records webm/opus with MediaRecorder,
@@ -52,13 +54,20 @@ export default function MicButton({ onAudio, disabled, locale }) {
       onContextMenu={(e) => e.preventDefault()}
       title={recording ? t(locale, 'recording') : t(locale, 'holdToTalk')}
       aria-label={t(locale, 'holdToTalk')}
-      className={`shrink-0 touch-none select-none rounded-full p-3 transition ${
-        recording ? 'animate-pulse bg-red-500/80 text-white' : 'bg-night-700 text-slate-300 hover:bg-night-600'
+      className={`relative shrink-0 cursor-pointer touch-none select-none rounded-full p-3 transition ${
+        recording
+          ? 'bg-clay text-white'
+          : 'bg-sand-100 text-ink-soft hover:bg-sand-200 hover:text-ink'
       } disabled:opacity-40`}
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-        <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z" />
-      </svg>
+      {recording && (
+        <motion.span
+          className="absolute inset-0 rounded-full border-2 border-clay"
+          animate={{ scale: [1, 1.55], opacity: [0.7, 0] }}
+          transition={{ repeat: Infinity, duration: 1.1, ease: 'easeOut' }}
+        />
+      )}
+      <IconMic size={17} />
     </button>
   );
 }

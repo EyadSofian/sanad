@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { fetchSpeech } from '../lib/api.js';
 import { t } from '../lib/i18n.js';
+import { IconSpeaker, IconStop } from './Icons.jsx';
 
 /**
  * Per-message TTS button (spec Section 9): ElevenLabs mp3, silent fallback to
@@ -63,17 +64,9 @@ export default function SpeakerButton({ messageId, content, locale }) {
       disabled={state === 'loading'}
       title={state === 'playing' ? t(locale, 'stop') : t(locale, 'listen')}
       aria-label={state === 'playing' ? t(locale, 'stop') : t(locale, 'listen')}
-      className="rounded-full p-1 text-slate-500 transition hover:bg-night-700 hover:text-slate-300 disabled:animate-pulse"
+      className="cursor-pointer rounded-full p-1 text-ink-faint transition hover:bg-sand-100 hover:text-palm disabled:animate-pulse"
     >
-      {state === 'playing' ? (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-          <rect x="6" y="6" width="12" height="12" rx="2" />
-        </svg>
-      ) : (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-          <path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z" />
-        </svg>
-      )}
+      {state === 'playing' ? <IconStop size={13} /> : <IconSpeaker size={13} />}
     </button>
   );
 }

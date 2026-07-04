@@ -26,8 +26,9 @@ export default [
       globals: { ...globals.browser },
     },
     rules: {
-      // React 18 automatic JSX runtime: component identifiers are "used" by JSX
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^[A-Z_]' }],
+      // React 18 automatic JSX runtime: component identifiers are "used" by JSX.
+      // `motion` is framer-motion's lowercase JSX namespace (<motion.div>).
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^([A-Z_]|motion$)' }],
     },
   },
 ];

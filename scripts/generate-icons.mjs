@@ -87,10 +87,11 @@ function drawIcon(size, { maskable = false, opaque = false } = {}) {
   const dotCy = S * (0.5 - 0.16 * scale);
   const dotR = S * 0.105 * scale;
 
-  // gold #d9b64a, background gradient night-800 → night-950
-  const GOLD = [217, 182, 74];
-  const BG_TOP = [16, 31, 54];
-  const BG_BOT = [7, 13, 24];
+  // light warm theme: palm-green arc + clay dot on a sand gradient
+  const ARC = [31, 107, 82]; // palm #1F6B52
+  const DOT = [176, 78, 46]; // clay #B04E2E
+  const BG_TOP = [251, 247, 239]; // sand-50 #FBF7EF
+  const BG_BOT = [237, 226, 202]; // deeper sand
 
   for (let y = 0; y < S; y++) {
     for (let x = 0; x < S; x++) {
@@ -125,11 +126,15 @@ function drawIcon(size, { maskable = false, opaque = false } = {}) {
       const dotDist = Math.hypot(x + 0.5 - cx, y + 0.5 - dotCy) - dotR;
       const dotCov = coverage(dotDist, feather);
 
-      const goldCov = Math.max(arcCov, dotCov);
-      if (goldCov > 0) {
-        r = lerp(r, GOLD[0], goldCov);
-        g = lerp(g, GOLD[1], goldCov);
-        b = lerp(b, GOLD[2], goldCov);
+      if (arcCov > 0) {
+        r = lerp(r, ARC[0], arcCov);
+        g = lerp(g, ARC[1], arcCov);
+        b = lerp(b, ARC[2], arcCov);
+      }
+      if (dotCov > 0) {
+        r = lerp(r, DOT[0], dotCov);
+        g = lerp(g, DOT[1], dotCov);
+        b = lerp(b, DOT[2], dotCov);
       }
 
       px[i] = Math.round(r);

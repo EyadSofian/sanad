@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { t } from '../lib/i18n.js';
 
 const ACK_KEY = 'sanad_disclosure_ack_v1';
@@ -14,20 +15,25 @@ export default function FirstRunModal({ locale }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true">
-      <div className="w-full max-w-md rounded-2xl border border-night-600 bg-night-800 p-6 shadow-2xl">
-        <h2 className="mb-3 text-lg font-semibold text-slate-100">{t(locale, 'firstRunTitle')}</h2>
-        <p className="mb-3 text-sm leading-6 text-slate-300">{t(locale, 'firstRunBody')}</p>
-        <p className="mb-5 rounded-lg bg-night-900 p-3 text-xs leading-5 text-slate-400">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="w-full max-w-md rounded-3xl border border-sand-200 bg-white p-6 shadow-lift"
+      >
+        <h2 className="mb-3 font-display text-lg font-bold text-ink">{t(locale, 'firstRunTitle')}</h2>
+        <p className="mb-3 text-sm leading-6 text-ink-soft">{t(locale, 'firstRunBody')}</p>
+        <p className="mb-5 rounded-xl bg-sand-100 p-3 text-xs leading-5 text-ink-faint">
           {locale === 'ar' ? t('en', 'disclosureBanner') : t('ar', 'disclosureBanner')}
         </p>
         <button
           onClick={ack}
-          className="w-full rounded-xl bg-jarvis/90 py-2.5 font-semibold text-night-950 transition hover:bg-jarvis"
+          className="w-full cursor-pointer rounded-xl bg-palm py-2.5 font-semibold text-white transition hover:bg-palm-deep active:scale-[0.98]"
         >
           {t(locale, 'firstRunAgree')}
         </button>
-      </div>
+      </motion.div>
     </div>
   );
 }

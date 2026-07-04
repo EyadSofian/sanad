@@ -1,11 +1,11 @@
 import { t } from '../lib/i18n.js';
 
 const STYLES = {
-  JARVIS: 'text-jarvis border-jarvis/40 bg-jarvis/10',
-  FRIDAY: 'text-friday border-friday/40 bg-friday/10',
-  TARS: 'text-tars border-tars/40 bg-tars/10',
-  CASE: 'text-case border-case/40 bg-case/10',
-  CRISIS: 'text-crisis border-crisis/40 bg-crisis/10',
+  JARVIS: 'text-jarvis border-jarvis/30 bg-jarvis-tint',
+  FRIDAY: 'text-friday border-friday/30 bg-friday-tint',
+  TARS: 'text-tars border-tars/30 bg-tars-tint',
+  CASE: 'text-case border-case/30 bg-case-tint',
+  CRISIS: 'text-crisis border-crisis/30 bg-crisis-tint',
 };
 
 const LABELS = {

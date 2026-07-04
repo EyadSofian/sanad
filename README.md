@@ -75,3 +75,17 @@ CI (`.github/workflows/ci.yml`) runs lint + the crisis suite + the PWA build on 
 ## Environment variables
 
 See [.env.example](.env.example). `CRISIS_RESOURCES_JSON` overrides the default resources file — every number must be verified before any public launch.
+
+## LLM engines (multi-provider)
+
+The persona replies (and the weekly digest) run on a switchable engine via `LLM_PROVIDER`:
+
+| Provider | Env | Default model |
+|---|---|---|
+| `gemini` (default) | `GEMINI_API_KEY` | `gemini-2.5-flash` |
+| `openai` | `OPENAI_API_KEY` + optional `OPENAI_MODEL` / `OPENAI_BASE_URL` | `gpt-5-mini` |
+| `anthropic` | `ANTHROPIC_API_KEY` + optional `ANTHROPIC_MODEL` | `claude-opus-4-8` |
+
+Gemini stays **always required**: the router/classifier, crisis path, embeddings (memory + KB) and voice-note transcription are pinned to it regardless of the main engine (`server/src/lib/llm.js`). The active engine shows up in Settings and in `GET /api/settings → engine`.
+
+For the internal-model / fine-tuning plan (router distillation, LoRA on the Sanad voice, why no LangChain for now), see [docs/ml-roadmap.md](docs/ml-roadmap.md).

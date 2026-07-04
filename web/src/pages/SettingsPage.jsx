@@ -3,11 +3,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import { SettingsAPI, MemoryAPI, MeAPI, DigestAPI } from '../lib/api.js';
 import { useAuth, useLocale } from '../lib/auth.jsx';
 import { t } from '../lib/i18n.js';
+import { IconBack, IconSparkle } from '../components/Icons.jsx';
+
+const ENGINE_LABELS = {
+  gemini: 'Google Gemini',
+  openai: 'OpenAI',
+  anthropic: 'Anthropic Claude',
+};
 
 function Section({ title, children }) {
   return (
-    <section className="rounded-2xl border border-night-700 bg-night-800/60 p-5">
-      <h2 className="mb-4 text-sm font-bold text-slate-200">{title}</h2>
+    <section className="rounded-2xl border border-sand-200 bg-white p-5 shadow-card">
+      <h2 className="mb-4 font-display text-sm font-bold text-ink">{title}</h2>
       {children}
     </section>
   );
@@ -18,7 +25,7 @@ export default function SettingsPage() {
   const locale = useLocale();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState(null); // {locale, tarsHonesty, tarsHumor, ttsEnabled, ttsUsage}
+  const [form, setForm] = useState(null); // {locale, tarsHonesty, tarsHumor, ttsEnabled, ttsUsage, engine}
   const [facts, setFacts] = useState([]);
   const [digest, setDigest] = useState(null);
   const saveTimer = useRef(null);
@@ -81,7 +88,7 @@ export default function SettingsPage() {
   };
 
   if (!form) {
-    return <div className="p-8 text-center text-sm text-slate-500">{t(locale, 'loading')}</div>;
+    return <div className="p-8 text-center text-sm text-ink-faint">{t(locale, 'loading')}</div>;
   }
 
   const usageRatio = form.ttsUsage?.budget ? Math.min(1, form.ttsUsage.used / form.ttsUsage.budget) : 0;
@@ -90,14 +97,16 @@ export default function SettingsPage() {
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
         <div className="flex items-center gap-3">
-          <Link to="/" className="rounded-lg p-1.5 text-slate-400 hover:bg-night-700 hover:text-slate-200" aria-label="back">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="rtl:-scale-x-100" aria-hidden>
-              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
-            </svg>
+          <Link
+            to="/"
+            className="cursor-pointer rounded-lg p-1.5 text-ink-soft transition hover:bg-sand-100 hover:text-ink"
+            aria-label={t(locale, 'back')}
+          >
+            <IconBack size={18} />
           </Link>
-          <h1 className="text-lg font-bold text-slate-100">{t(locale, 'settings')}</h1>
+          <h1 className="font-display text-lg font-bold text-ink">{t(locale, 'settings')}</h1>
           <span className="flex-1" />
-          <span className="text-xs text-slate-500" dir="ltr">
+          <span className="text-xs text-ink-faint" dir="ltr">
             {form.email}
           </span>
         </div>
@@ -108,8 +117,10 @@ export default function SettingsPage() {
               <button
                 key={loc}
                 onClick={() => save({ locale: loc })}
-                className={`rounded-xl px-4 py-2 text-sm transition ${
-                  form.locale === loc ? 'bg-jarvis/90 font-semibold text-night-950' : 'bg-night-700 text-slate-300 hover:bg-night-600'
+                className={`cursor-pointer rounded-xl px-4 py-2 text-sm transition active:scale-[0.97] ${
+                  form.locale === loc
+                    ? 'bg-palm font-semibold text-white'
+                    : 'bg-sand-100 text-ink-soft hover:bg-sand-200'
                 }`}
               >
                 {loc === 'ar' ? 'العربية (مصري)' : 'English'}
@@ -124,9 +135,9 @@ export default function SettingsPage() {
             ['tarsHumor', 'humor'],
           ].map(([key, label]) => (
             <label key={key} className="mb-4 block last:mb-0">
-              <span className="mb-1.5 flex justify-between text-xs text-slate-400">
+              <span className="mb-1.5 flex justify-between text-xs text-ink-soft">
                 <span>{t(locale, label)}</span>
-                <span className="font-mono text-tars">{form[key]}%</span>
+                <span className="font-mono font-semibold text-tars">{form[key]}%</span>
               </span>
               <input type="range" min="0" max="100" value={form[key]} onChange={(e) => save({ [key]: Number(e.target.value) })} />
             </label>
@@ -135,18 +146,23 @@ export default function SettingsPage() {
 
         <Section title={t(locale, 'tts')}>
           <label className="flex cursor-pointer items-center justify-between">
-            <span className="text-sm text-slate-300">{t(locale, 'tts')}</span>
-            <input type="checkbox" checked={form.ttsEnabled} onChange={(e) => save({ ttsEnabled: e.target.checked })} className="h-5 w-5 accent-jarvis" />
+            <span className="text-sm text-ink-soft">{t(locale, 'tts')}</span>
+            <input
+              type="checkbox"
+              checked={form.ttsEnabled}
+              onChange={(e) => save({ ttsEnabled: e.target.checked })}
+              className="h-5 w-5 accent-palm"
+            />
           </label>
           {form.ttsUsage && (
             <div className="mt-4">
-              <div className="mb-1 flex justify-between text-[11px] text-slate-500">
+              <div className="mb-1 flex justify-between text-[11px] text-ink-faint">
                 <span>{t(locale, 'ttsUsage')}</span>
                 <span dir="ltr" className="font-mono">
                   {Math.round(form.ttsUsage.used)} / {form.ttsUsage.budget}
                 </span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-night-600">
+              <div className="h-1.5 overflow-hidden rounded-full bg-sand-200">
                 <div
                   className={`h-full rounded-full transition-all ${usageRatio >= 0.8 ? 'bg-tars' : 'bg-case'}`}
                   style={{ width: `${usageRatio * 100}%` }}
@@ -156,18 +172,32 @@ export default function SettingsPage() {
           )}
         </Section>
 
+        {form.engine && (
+          <Section title={t(locale, 'engine')}>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm text-ink-soft">{ENGINE_LABELS[form.engine.provider] || form.engine.provider}</span>
+              <span dir="ltr" className="rounded-lg border border-palm/25 bg-palm-tint px-2.5 py-1 font-mono text-[11px] text-palm">
+                {form.engine.model}
+              </span>
+            </div>
+          </Section>
+        )}
+
         <Section title={t(locale, 'memory')}>
           {facts.length === 0 ? (
-            <p className="text-xs leading-5 text-slate-500">{t(locale, 'memoryEmpty')}</p>
+            <p className="text-xs leading-5 text-ink-faint">{t(locale, 'memoryEmpty')}</p>
           ) : (
             <ul className="max-h-72 space-y-2 overflow-y-auto">
               {facts.map((f) => (
-                <li key={f.id} className="flex items-start justify-between gap-3 rounded-xl bg-night-900 px-3 py-2">
+                <li key={f.id} className="flex items-start justify-between gap-3 rounded-xl border border-sand-200 bg-sand-50 px-3 py-2">
                   <div>
-                    <span className="me-2 rounded bg-night-700 px-1.5 py-0.5 text-[10px] text-slate-400">{f.category}</span>
-                    <span className="text-xs leading-5 text-slate-300">{f.fact}</span>
+                    <span className="me-2 rounded-md bg-sand-200 px-1.5 py-0.5 text-[10px] text-ink-soft">{f.category}</span>
+                    <span className="text-xs leading-5 text-ink-soft">{f.fact}</span>
                   </div>
-                  <button onClick={() => removeFact(f.id)} className="shrink-0 text-[11px] text-red-400/80 hover:text-red-400">
+                  <button
+                    onClick={() => removeFact(f.id)}
+                    className="shrink-0 cursor-pointer text-[11px] text-red-500 hover:text-red-600"
+                  >
                     {t(locale, 'deleteFact')}
                   </button>
                 </li>
@@ -178,11 +208,15 @@ export default function SettingsPage() {
 
         <Section title={t(locale, 'digest')}>
           {digest ? (
-            <div className="whitespace-pre-wrap rounded-xl border border-tars/30 bg-night-900 p-4 text-sm leading-7 text-slate-200">
-              {digest.content}
+            <div className="rounded-xl border border-tars/25 bg-tars-tint/40 p-4">
+              <div className="mb-2 flex items-center gap-1.5 text-tars">
+                <IconSparkle size={14} />
+                <span className="text-[11px] font-semibold">{t(locale, 'weekMirror')}</span>
+              </div>
+              <p className="whitespace-pre-wrap text-sm leading-7 text-ink">{digest.content}</p>
             </div>
           ) : (
-            <p className="text-xs leading-5 text-slate-500">{t(locale, 'digestEmpty')}</p>
+            <p className="text-xs leading-5 text-ink-faint">{t(locale, 'digestEmpty')}</p>
           )}
         </Section>
 
@@ -193,11 +227,14 @@ export default function SettingsPage() {
                 logout();
                 navigate('/login');
               }}
-              className="rounded-xl bg-night-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-night-600"
+              className="cursor-pointer rounded-xl bg-sand-100 px-4 py-2 text-sm text-ink-soft transition hover:bg-sand-200 active:scale-[0.98]"
             >
               {t(locale, 'logout')}
             </button>
-            <button onClick={deleteAccount} className="rounded-xl border border-red-500/40 px-4 py-2 text-sm text-red-400 transition hover:bg-red-500/10">
+            <button
+              onClick={deleteAccount}
+              className="cursor-pointer rounded-xl border border-red-300 px-4 py-2 text-sm text-red-600 transition hover:bg-red-50 active:scale-[0.98]"
+            >
               {t(locale, 'deleteAccount')}
             </button>
           </div>

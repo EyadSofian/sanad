@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../lib/auth.jsx';
 import { t } from '../lib/i18n.js';
 
@@ -19,23 +20,44 @@ function useGuestLocale() {
 
 function AuthShell({ locale, toggleLocale, title, children }) {
   return (
-    <div className="flex min-h-full flex-col items-center justify-center px-4 py-10">
-      <button onClick={toggleLocale} className="mb-6 rounded-full border border-night-600 px-3 py-1 text-xs text-slate-400 hover:text-slate-200">
+    <div className="relative flex min-h-full flex-col items-center justify-center overflow-hidden px-4 py-10">
+      <div className="blob -top-28 -start-24 h-96 w-96 animate-breathe bg-palm-tint" />
+      <div className="blob -bottom-24 -end-24 h-80 w-80 animate-breathe bg-clay-tint [animation-delay:2.5s]" />
+
+      <button
+        onClick={toggleLocale}
+        className="relative z-10 mb-7 cursor-pointer rounded-full border border-sand-300 bg-white/80 px-3.5 py-1.5 text-xs text-ink-soft shadow-card transition hover:text-ink"
+      >
         {locale === 'ar' ? 'English' : 'العربية'}
       </button>
-      <div className="mb-2 text-4xl font-bold text-jarvis">{t(locale, 'appName')}</div>
-      <p className="mb-1 text-sm text-slate-400">{t(locale, 'tagline')}</p>
-      <p className="mb-8 max-w-sm text-center text-[11px] leading-5 text-slate-500">{t(locale, 'disclosureBanner')}</p>
-      <div className="w-full max-w-sm rounded-2xl border border-night-600 bg-night-800 p-6 shadow-xl">
-        <h1 className="mb-5 text-lg font-semibold text-slate-100">{title}</h1>
-        {children}
+
+      <div className="relative z-10 mb-2 font-display text-5xl font-extrabold tracking-tight text-palm">
+        {t(locale, 'appName')}
+        <span className="text-clay">.</span>
       </div>
+      <p className="relative z-10 mb-1 text-sm text-ink-soft">{t(locale, 'tagline')}</p>
+      <p className="relative z-10 mb-8 max-w-sm text-center text-[11px] leading-5 text-ink-faint">
+        {t(locale, 'disclosureBanner')}
+      </p>
+
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="relative z-10 w-full max-w-sm rounded-3xl border border-sand-200 bg-white p-6 shadow-warm"
+      >
+        <h1 className="mb-5 font-display text-xl font-bold text-ink">{title}</h1>
+        {children}
+      </motion.div>
     </div>
   );
 }
 
 const inputCls =
-  'w-full rounded-xl border border-night-600 bg-night-900 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-jarvis/60 focus:outline-none';
+  'w-full rounded-xl border border-sand-300 bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-palm focus:outline-none focus:ring-2 focus:ring-palm/15';
+
+const primaryBtn =
+  'w-full cursor-pointer rounded-xl bg-palm py-2.5 font-semibold text-white transition hover:bg-palm-deep active:scale-[0.98] disabled:opacity-50';
 
 export function LoginPage() {
   const [locale, toggleLocale] = useGuestLocale();
@@ -61,18 +83,18 @@ export function LoginPage() {
   };
 
   return (
-    <AuthShell locale={locale} toggleLocale={toggleLocale} title={t(locale, 'login')}>
+    <AuthShell locale={locale} toggleLocale={toggleLocale} title={t(locale, 'loginTitle')}>
       <form onSubmit={submit} className="space-y-3">
         <input dir="ltr" type="email" required placeholder={t(locale, 'email')} value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
         <input dir="ltr" type="password" required placeholder={t(locale, 'password')} value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
-        {error && <p className="text-xs text-red-400">{error}</p>}
-        <button disabled={busy} className="w-full rounded-xl bg-jarvis/90 py-2.5 font-semibold text-night-950 transition hover:bg-jarvis disabled:opacity-50">
+        {error && <p className="text-xs text-red-600">{error}</p>}
+        <button disabled={busy} className={primaryBtn}>
           {busy ? t(locale, 'loading') : t(locale, 'login')}
         </button>
       </form>
-      <p className="mt-4 text-center text-xs text-slate-400">
+      <p className="mt-4 text-center text-xs text-ink-soft">
         {t(locale, 'noAccount')}{' '}
-        <Link to="/signup" className="text-jarvis hover:underline">
+        <Link to="/signup" className="font-semibold text-palm hover:underline">
           {t(locale, 'signup')}
         </Link>
       </p>
@@ -106,22 +128,22 @@ export function SignupPage() {
   };
 
   return (
-    <AuthShell locale={locale} toggleLocale={toggleLocale} title={t(locale, 'signup')}>
+    <AuthShell locale={locale} toggleLocale={toggleLocale} title={t(locale, 'signupTitle')}>
       <form onSubmit={submit} className="space-y-3">
         <input dir="ltr" type="email" required placeholder={t(locale, 'email')} value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
         <input dir="ltr" type="password" required minLength={8} placeholder={t(locale, 'password')} value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
-        <label className="flex cursor-pointer items-start gap-2 text-xs leading-5 text-slate-300">
-          <input type="checkbox" required checked={adult} onChange={(e) => setAdult(e.target.checked)} className="mt-0.5 accent-jarvis" />
+        <label className="flex cursor-pointer items-start gap-2 text-xs leading-5 text-ink-soft">
+          <input type="checkbox" required checked={adult} onChange={(e) => setAdult(e.target.checked)} className="mt-0.5 accent-palm" />
           {t(locale, 'ageGate')}
         </label>
-        {error && <p className="text-xs text-red-400">{error}</p>}
-        <button disabled={busy || !adult} className="w-full rounded-xl bg-jarvis/90 py-2.5 font-semibold text-night-950 transition hover:bg-jarvis disabled:opacity-50">
+        {error && <p className="text-xs text-red-600">{error}</p>}
+        <button disabled={busy || !adult} className={primaryBtn}>
           {busy ? t(locale, 'loading') : t(locale, 'signup')}
         </button>
       </form>
-      <p className="mt-4 text-center text-xs text-slate-400">
+      <p className="mt-4 text-center text-xs text-ink-soft">
         {t(locale, 'haveAccount')}{' '}
-        <Link to="/login" className="text-jarvis hover:underline">
+        <Link to="/login" className="font-semibold text-palm hover:underline">
           {t(locale, 'login')}
         </Link>
       </p>
